@@ -1,0 +1,33 @@
+{
+    "data": {
+        "index": "ivname",
+        "to_predict": "future_sales"
+    },
+    "loaders": {
+        "csv": {
+            "sep": ","
+        },
+        "json": {
+            "orient": "table"
+        },
+        "parquet": {
+            "engine": "auto"
+        }
+    },
+    "preprocessing": {
+        "filling_strategy": "strategy",
+        "routines": [
+            "set_index",
+            "outliers",
+            "label_encoding",
+            "shuffling",
+            "churn_segmenting"
+        ]
+    },
+    "build": {
+        "targets": ["churn+future_sales"]
+    },
+    "predict": {
+        "targets": ["churn", "future_sales", "full"]
+    }
+}
