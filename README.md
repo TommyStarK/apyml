@@ -1,7 +1,17 @@
 # cltv-predict
 **Under heavy development**
 
-# Usage
+`cltv-predict` is the first attempt of writting a tool capable of
+adapting to the structure and shape of a given dataframe and build
+a customer lifetime value predictive model based on xgboost.
+
+With the proper configuration, the app is able to follow specific data
+preprocessing guidelines and build any kind of model from the simplest
+to highly complex.
+
+This tool has been designed for being easily customizable.
+
+## Usage
 
 ```bash
 # install package
@@ -20,6 +30,20 @@ optional arguments:
   -p, --predict  Predict CLTV for given data using existing models
 ```
 
-# How to configure the app
+## Build configuration
 
-Inc
+ - Required Configuration
+
+    Inc
+
+ - Data preprocessing guidelines
+
+    Inc
+
+
+## How to use my predictive models ?
+
+  Inc
+
+
+
