@@ -17,11 +17,7 @@
     "preprocessing": {
         "filling_strategy": "strategy",
         "routines": [
-            "set_index",
-            "outliers",
-            "label_encoding",
-            "shuffling",
-            "churn_segmenting"
+            "shuffling"
         ]
     },
     "build": {

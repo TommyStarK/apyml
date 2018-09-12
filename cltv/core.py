@@ -4,7 +4,8 @@ from multiprocessing import Pool
 
 from .context import Context
 from .dataframe import Framator
-from .dataframe import Preprocessor
+# from .dataframe import Preprocessor
+from .dataframe import Preprocess
 from .internal import Filepath
 from .internal import merkle_root
 from .internal import fatal
@@ -21,18 +22,23 @@ class Core(object):
             self.mode = 'predict'
         else:
             self.mode = mode
+        if self.mode == 'build':
+            self._init_build()
 
+
+    def _init_build(self):
         try:
-            self.infos = Filepath(datapath).get_infos()
+            self.infos = Filepath(self.datapath).get_infos()
             self.dataframe = Framator(self.infos).create_dataframe()
             print(self.dataframe.describe())
             print(self.dataframe.head())
             info('Dataframe creation [\033[0;32mOK\033[0m]')
-            self.dataframe = Preprocessor(self.dataframe).preprocess()
-            info('Data preprocessing [\033[0;32mOK\033[0m]')
-            self.dataframe_hash = merkle_root(list(self.dataframe.columns.values))
-            info(f"Dataframe shape: [{self.dataframe.shape[0]} rows x {self.dataframe.shape[1]} columns] hash: {self.dataframe_hash}")
-            info(f"CLTV Core initialization [\033[0;32mOK\033[0m]")
+            # self.dataframe = Preprocessor(self.dataframe).preprocess()
+            self.dataframe = Preprocess(self.dataframe)
+            # info('Data preprocessing [\033[0;32mOK\033[0m]')
+            # self.dataframe_hash = merkle_root(list(self.dataframe.columns.values))
+            # info(f"Dataframe shape: [{self.dataframe.shape[0]} rows x {self.dataframe.shape[1]} columns] hash: {self.dataframe_hash}")
+            # info(f"CLTV Core initialization [\033[0;32mOK\033[0m]")
         except Exception as e:
             fatal('CLTV Core initialization [\033[0;31mFAILED\033[0m]')
             fatal(e)
