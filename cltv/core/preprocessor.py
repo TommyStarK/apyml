@@ -15,7 +15,7 @@ config = {
 
 path = 'cltv.core.preprocessing.guidelines'
 
-def preprocessor(func):
+def preprocessor(func: object):
     def wrapper(config: dict, dataframe: df) -> df:
         return func(config, dataframe.copy())
     return wrapper
