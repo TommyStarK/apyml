@@ -1,4 +1,4 @@
 
-from .cltv import main
+from .entrypoint import main
 
 main()

@@ -7,7 +7,7 @@ from .internal import Singleton
 class Context(metaclass=Singleton):
     def __init__(self):
         self._root = 'cltv/models'
-        self.context = {}
+        self._context = {}
         self._load_config()
         self._load_models()
         info('Context initialization [\033[0;32mOK\033[0m]')
@@ -34,5 +34,8 @@ class Context(metaclass=Singleton):
     def get_store(self) -> dict:
         return self._store
 
-    def set_context(key: str, item: object):
-        self.context[key] = item
+    def set_to_context(key: str, item: object):
+        self._context[key] = item
+
+    def get_from_context(key: str) -> object:
+        return self._context[key]

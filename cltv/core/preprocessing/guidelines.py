@@ -1,6 +1,6 @@
 from pandas import DataFrame as df
 
-from ...dataframe import preprocessor
+from ...core import preprocessor
 from ...internal import info
 
 @preprocessor

@@ -27,7 +27,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'cltvd = cltv.cltv:main',
+            'cltvd = cltv.entrypoint:main',
         ],
     },
     executables=[Executable('app.py')]

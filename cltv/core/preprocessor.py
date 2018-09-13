@@ -13,7 +13,7 @@ config = {
     **context.get_config('preprocessing')
 }
 
-root = 'cltv.dataframe.preprocessing.guidelines'
+path = 'cltv.core.preprocessing.guidelines'
 
 def preprocessor(func):
     def wrapper(config: dict, dataframe: df) -> df:
@@ -25,5 +25,5 @@ def Preprocess(dataframe: df) -> df:
         raise RuntimeError('Unprocessable dataframe. None, not of type pandas.DataFrame or empty dataframe')
     tmp = dataframe.copy()
     for routine in config['routines']:
-        tmp = getattr(importlib.import_module(root), routine)(config, tmp)
+        tmp = getattr(importlib.import_module(path), routine)(config, tmp)
     return tmp
