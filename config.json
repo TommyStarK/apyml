@@ -17,6 +17,10 @@
     "preprocessing": {
         "filling_strategy": "strategy",
         "routines": [
+            "set_index",
+            "label_encoding",
+            "outliers",
+            "churn_segmenting",
             "shuffling"
         ]
     },
