@@ -30,4 +30,4 @@ def build(dataframe: df) -> object:
 
     config = context.get_config('build')
     for directive in config['targets']:
-        yield (directive, getattr(importlib.import_module(path), directive)(dataframe))
+        yield (directive, getattr(importlib.import_module(path), directive)(dataframe.copy()))
