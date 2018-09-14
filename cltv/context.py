@@ -34,8 +34,11 @@ class Context(metaclass=Singleton):
     def get_store(self) -> dict:
         return self._store
 
-    def set_to_context(key: str, item: object):
+    def get_store_root(self) -> str:
+        return self._root
+
+    def set_to_context(self, key: str, item: object):
         self._context[key] = item
 
-    def get_from_context(key: str) -> object:
+    def get_from_context(self, key: str) -> object:
         return self._context[key]

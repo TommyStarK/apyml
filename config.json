@@ -19,11 +19,12 @@
         "routines": [
             "set_index",
             "outliers",
+            "label_encoding",
             "shuffling"
         ]
     },
     "build": {
-        "targets": ["churn+future_sales"]
+        "targets": ["future_sales"]
     },
     "predict": {
         "targets": ["churn", "future_sales", "full"]

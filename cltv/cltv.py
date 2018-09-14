@@ -14,47 +14,41 @@ context = Context()
 
 class CLTV(object):
     def __init__(self, datapath: str, mode: str = None):
-        self.dataframe = None
-        self.datapath = datapath
-        self.handler = { 'build': self._build, 'predict': self._predict }
+        self._dataframe = None
+        self._datapath = datapath
+        self._handler = { 'build': self._build, 'predict': self._predict }
         if not mode:
-            self.mode = 'predict'
+            self._mode = 'predict'
         else:
-            self.mode = mode
-        if self.mode == 'build':
-            self._init_build()
-
+            self._mode = mode
 
     def _init_build(self):
         try:
-            self.infos = Filepath(self.datapath).get_infos()
-            self.dataframe = Framator(self.infos).create_dataframe()
-            print(self.dataframe.describe())
-            print(self.dataframe.head())
+            self.infos = Filepath(self._datapath).get_infos()
+            self._dataframe = Framator(self.infos).create_dataframe()
             info('Dataframe creation [\033[0;32mOK\033[0m]')
-            self.dataframe = Preprocess(self.dataframe)
+            self._dataframe = Preprocess(self._dataframe)
             info('Data preprocessing [\033[0;32mOK\033[0m]')
-            self.dataframe_hash = merkle_root(list(self.dataframe.columns.values))
-            info(f"Dataframe shape: [{self.dataframe.shape[0]} rows x {self.dataframe.shape[1]} columns] hash: {self.dataframe_hash}")
-            info(f"CLTV initialization [\033[0;32mOK\033[0m]")
+            info('CLTV initialization [\033[0;32mOK\033[0m]')
         except Exception as e:
             fatal('CLTV initialization [\033[0;31mFAILED\033[0m]')
             fatal(e)
             sys.exit(1)
 
     def _build(self):
-        self.config = context.get_config('build')
-        print(self.config)
-        print(self.dataframe.head())
-        print(self.dataframe.columns )
         try:
-            pass
+            import pickle
+            from .core import build
+            self._init_build()
+            for directive, model in build(self._dataframe):
+                h = context.get_from_context(f'{directive}-dataframe_hash')
+                pickle.dump(model, open(f"{context.get_store_root()}/{directive}/{h}", 'wb'))
         except Exception as e:
-            pass
+            raise e
 
     def _predict_routine(self, path: str, models: list):
         print(path, models)
-        tmp = self.dataframe.copy()
+        tmp = self._dataframe.copy()
         print(tmp.head())
 
 
@@ -81,4 +75,4 @@ class CLTV(object):
         info('CLTV writing report to disk...')
 
     def run(self):
-        self.handler[self.mode]()
+        self._handler[self._mode]()
