@@ -22,12 +22,12 @@ class CLTV(object):
         else:
             self._mode = mode
 
-    def _init_build(self):
+    def _init_build(self, predict: bool = False):
         try:
             self.infos = Filepath(self._datapath).get_infos()
             self._dataframe = Framator(self.infos).create_dataframe()
             info('Dataframe creation [\033[0;32mOK\033[0m]')
-            self._dataframe = Preprocess(self._dataframe)
+            self._dataframe = Preprocess(self._dataframe, predict=predict)
             info('Data preprocessing [\033[0;32mOK\033[0m]')
             info('CLTV initialization [\033[0;32mOK\033[0m]')
         except Exception as e:
@@ -35,11 +35,12 @@ class CLTV(object):
             fatal(e)
             sys.exit(1)
 
+
     def _build(self):
         try:
             import pickle
-            from .core import build
             self._init_build()
+            from .core import build
             for directive, model in build(self._dataframe):
                 h = context.get_from_context(f'{directive}-dataframe_hash')
                 pickle.dump(model, open(f"{context.get_store_root()}/{directive}/{h}", 'wb'))
@@ -47,16 +48,25 @@ class CLTV(object):
             raise e
 
     def _predict_routine(self, path: str, models: list):
-        print(path, models)
-        tmp = self._dataframe.copy()
-        print(tmp.head())
-
+        from .internal import merkle_root
+        h = merkle_root(self._dataframe.columns)
+        if h not in models:
+            raise RuntimeError('No model found for this kind of dataframe')
+        target = models[models.index(h)]
+        import pickle
+        model = pickle.load(open(f'{path}/{target}', 'rb'))
+        preds = model.predict(self._dataframe)
+        print(self._dataframe.shape)
+        print(len(preds))
+        print(preds)
+        print(type(preds))
 
     def _predict(self):
         self.config = context.get_config('predict')
 
         try:
             store = context.get_store()
+            self._init_build(predict=True)
             pool = Pool(processes=len(self.config['targets']))
             pool.starmap(self._predict_routine, [(path, models) for path, models in self._retrieve_valid_model(store)])
             pool.close()

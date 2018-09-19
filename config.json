@@ -27,6 +27,11 @@
         "targets": ["future_sales"]
     },
     "predict": {
-        "targets": ["churn", "future_sales", "full"]
+        "targets": ["future_sales"],
+        "build_directives": [
+            "set_index",
+            "label_encoding",
+            "shuffling"
+        ]
     }
 }

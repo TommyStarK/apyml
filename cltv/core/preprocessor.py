@@ -10,7 +10,8 @@ context = Context()
 
 config = {
     **context.get_config('data'),
-    **context.get_config('preprocessing')
+    **context.get_config('preprocessing'),
+    **context.get_config('predict')
 }
 
 path = 'cltv.core.preprocessing.guidelines'
@@ -20,10 +21,11 @@ def preprocessor(func: object):
         return func(config, dataframe.copy())
     return wrapper
 
-def Preprocess(dataframe: df) -> df:
+def Preprocess(dataframe: df, predict: bool = False) -> df:
     if dataframe is None or not isinstance(dataframe, df) or dataframe.empty:
         raise RuntimeError('Unprocessable dataframe. None, not of type pandas.DataFrame or empty dataframe')
     tmp = dataframe.copy()
-    for routine in config['routines']:
+    routines = config['routines'] if not predict else config['build_directives']
+    for routine in routines:
         tmp = getattr(importlib.import_module(path), routine)(config, tmp)
     return tmp
