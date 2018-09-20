@@ -19,8 +19,7 @@
         "routines": [
             "set_index",
             "outliers",
-            "label_encoding",
-            "shuffling"
+            "label_encoding"
         ]
     },
     "build": {
@@ -30,8 +29,7 @@
         "targets": ["future_sales"],
         "build_directives": [
             "set_index",
-            "label_encoding",
-            "shuffling"
+            "label_encoding"
         ]
     }
 }
