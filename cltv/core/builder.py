@@ -8,7 +8,7 @@ from ..internal import merkle_root
 
 context = Context()
 
-path = 'cltv.core.build.guidelines'
+path = 'cltv.core.ibuild.guidelines'
 
 def build_directive(func: object):
     def wrapper(dataframe: df) -> object:
