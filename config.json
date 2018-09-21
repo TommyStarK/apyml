@@ -1,7 +1,7 @@
 {
     "data": {
-        "index": "ivname",
-        "to_predict": "future_sales"
+        "index": ,
+        "to_predict":
     },
     "loaders": {
         "csv": {
@@ -17,19 +17,16 @@
     "preprocessing": {
         "filling_strategy": "strategy",
         "routines": [
-            "set_index",
-            "outliers",
-            "label_encoding"
+
         ]
     },
     "build": {
-        "targets": ["future_sales"]
+        "targets": []
     },
     "predict": {
-        "targets": ["future_sales"],
+        "targets": [],
         "build_directives": [
-            "set_index",
-            "label_encoding"
+
         ]
     }
 }
