@@ -59,7 +59,6 @@ class CLTV(object):
         self._preds = model.predict(self._dataframe)
 
 
-
     def _predict(self):
         self.config = context.get_config('predict')
 

@@ -22,7 +22,7 @@
         "targets": [""]
     },
     "predict": {
-        "targets": ["future_sales"],
+        "targets": [""],
         "build_directives": []
     }
 }
