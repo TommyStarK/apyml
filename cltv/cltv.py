@@ -56,21 +56,7 @@ class CLTV(object):
         target = models[models.index(h)]
         import pickle
         model = pickle.load(open(f'{path}/{target}', 'rb'))
-        preds = model.predict(self._dataframe)
-        # Manouchage en vu de la demo
-        import pandas
-        spreds = pandas.Series(preds)
-        res = pandas.read_csv('~/Downloads/itm_sales_measured.csv')
-        print(res.head())
-        from sklearn.metrics import mean_squared_error
-        print(f"MSE -> {mean_squared_error(res['future_sales'], preds)}")
-        import matplotlib.pyplot as plt
-        fig, ax = plt.subplots()
-        ax.scatter(res['future_sales'], spreds, edgecolors=(0, 0, 0))
-        ax.plot([res['future_sales'].min(), res['future_sales'].max()], [res['future_sales'].min(), res['future_sales'].max()], 'k--', lw=4)
-        ax.set_xlabel('Measured')
-        ax.set_ylabel('Predicted')
-        plt.show()
+        self._preds = model.predict(self._dataframe)
 
 
 

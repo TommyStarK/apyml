@@ -1,7 +1,7 @@
 {
     "data": {
-        "index": ,
-        "to_predict":
+        "index": "",
+        "to_predict": ""
     },
     "loaders": {
         "csv": {
@@ -16,17 +16,13 @@
     },
     "preprocessing": {
         "filling_strategy": "strategy",
-        "routines": [
-
-        ]
+        "routines": []
     },
     "build": {
-        "targets": []
+        "targets": [""]
     },
     "predict": {
-        "targets": [],
-        "build_directives": [
-
-        ]
+        "targets": ["future_sales"],
+        "build_directives": []
     }
 }
