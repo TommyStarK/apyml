@@ -33,26 +33,3 @@ parser.add_argument(
     type=str,
     help='report format'
 )
-
-
-# from .internal import Mode
-
-# def main():
-    
-
-#     args = parser.parse_args()
-#     mode = None if 'mode' not in args else args.mode
-
-#     print(args)
-
-#     from .internal import init_logger
-#     init_logger()
-
-#     from .context import Context
-#     Context()
-
-#     from .apyml import APYML
-#     apyml = APYML(args.filepath, mode=mode, report=args.report)
-
-#     apyml.run()
-#     apyml.report()

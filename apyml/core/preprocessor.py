@@ -14,7 +14,7 @@ config = {
     **context.get_config('predict')
 }
 
-path = 'cltv.core.preprocessing.guidelines'
+path = 'apyml.core.preprocessing.guidelines'
 
 def preprocessor(func: object):
     def wrapper(config: dict, dataframe: df) -> df:
