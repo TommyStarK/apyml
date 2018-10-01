@@ -12,8 +12,8 @@ from .internal import info
 
 context = Context()
 
-class CLTV(object):
-    def __init__(self, datapath: str, mode: str = None):
+class APYML(object):
+    def __init__(self, datapath: str, mode: str = None, report: str = None):
         self._dataframe = None
         self._datapath = datapath
         self._handler = { 'build': self._build, 'predict': self._predict }
@@ -21,6 +21,7 @@ class CLTV(object):
             self._mode = 'predict'
         else:
             self._mode = mode
+        print('DEBUG DEBUG')
 
     def _init_build(self, predict: bool = False):
         try:
@@ -29,9 +30,9 @@ class CLTV(object):
             info('Dataframe creation [\033[0;32mOK\033[0m]')
             self._dataframe = Preprocess(self._dataframe, predict=predict)
             info('Data preprocessing [\033[0;32mOK\033[0m]')
-            info('CLTV initialization [\033[0;32mOK\033[0m]')
+            info('APYML initialization [\033[0;32mOK\033[0m]')
         except Exception as e:
-            fatal('CLTV initialization [\033[0;31mFAILED\033[0m]')
+            fatal('APYML initialization [\033[0;31mFAILED\033[0m]')
             fatal(e)
             sys.exit(1)
 
@@ -57,6 +58,7 @@ class CLTV(object):
         import pickle
         model = pickle.load(open(f'{path}/{target}', 'rb'))
         self._preds = model.predict(self._dataframe)
+        print(self._preds)
 
 
     def _predict(self):
@@ -80,7 +82,7 @@ class CLTV(object):
                     yield (k, v)
 
     def report(self):
-        info('CLTV writing report to disk...')
+        info('APYML writing report to disk...')
 
     def run(self):
         self._handler[self._mode]()

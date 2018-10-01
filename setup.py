@@ -2,24 +2,24 @@
 from setuptools import find_packages
 from cx_Freeze import setup, Executable
 
-import cltv
+import apyml
 
-# project requirements from pip
-with open('requirements.txt') as requirement_file:
-    requirements = requirement_file.read().splitlines()
-
+install_requires = [    
+    'cx_Freeze'
+    'pandas'
+]
 
 setup(
-    name='cltv',
-    version=cltv.__version__,
+    name='apyml',
+    version=apyml.__version__,
     packages=find_packages(),
-    author='TommyStarK <Thomas Milox>',
+    author=apyml.__author__,
     author_email='thomasmilox@gmail.com',
-    description='Tool to build CLTV model or predict future sales for given data',
+    description='Apyml - a Machine learning model building tool for humans.',
     long_description=open('README.md').read(),
-    install_requires=requirements,
+    install_requires=install_requires,
     include_package_data=True,
-    url='https://github.com/TommyStarK/cltv-predict',
+    url='https://github.com/TommyStarK/apyml',
     classifiers=[
         'Programming Language :: Python :: 3',
         'Natural Language :: English',
@@ -27,7 +27,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'cltvd = cltv.entrypoint:main',
+            'apyml = apyml.__main__:main',
         ],
     },
     executables=[Executable('app.py')]

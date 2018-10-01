@@ -1,7 +1,0 @@
-boto3
-cx_Freeze
-numpy
-scipy
-pandas
-sklearn
-xgboost
