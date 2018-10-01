@@ -22,7 +22,7 @@ class APYML(object):
 
     
     def run(self):
-        pass
+        Preprocess()
 
 
     # def _init_build(self, predict: bool = False):

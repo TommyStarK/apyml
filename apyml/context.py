@@ -1,12 +1,13 @@
 import json
 import os
 
-from .internal import info
-from .internal import Singleton
+from apyml.internal import info
+from apyml.internal import Singleton
 
 class Context(metaclass=Singleton):
     def __init__(self):
-        self._root = 'cltv/models'
+        self._root = 'apyml/models'
+        self._directives = 'apyml.directives.directives'
         self._context = {}
         self._load_config()
         self._load_models()
@@ -16,10 +17,9 @@ class Context(metaclass=Singleton):
         with open('config.json') as f:
             self._config = json.load(f)
             if not self._config:
-                import sys
-                from .internal import fatal
+                from apyml.internal import fatal
                 fatal('Initialization context [\033[0;31mFAILED\033[0m]')
-                sys.exit(1)
+                raise RuntimeError('Unexpected error occurred during the loading of the configuration.')
 
     def _load_models(self):
         self._store = {}
@@ -33,6 +33,9 @@ class Context(metaclass=Singleton):
 
     def get_store(self) -> dict:
         return self._store
+    
+    def get_directives(self) -> str:
+        return self._directives
 
     def get_store_root(self) -> str:
         return self._root

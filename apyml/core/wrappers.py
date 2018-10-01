@@ -1,0 +1,29 @@
+from pandas import DataFrame as df
+
+from ..context import Context
+from ..internal import info
+from ..internal import merkle_root
+
+def build_directive(func: object):
+    def wrapper(dataframe: df) -> object:
+        config = context.get_config('data')
+        if 'to_predict' not in config:
+            raise KeyError('Missing key `to_predict` in config.')
+        targets = list(dataframe.columns.values)
+        if config['to_predict'] in targets:
+            targets.remove(config['to_predict'])
+        context.set_to_context(f"{config['to_predict']}-dataframe_hash", merkle_root(targets))
+        # info('Building model...')
+        return func(dataframe)
+    return wrapper
+
+def predict_directive(func: object):
+    def wrapper():
+        func()
+    return wrapper
+
+def preprocess_directive(func: object):
+    def wrapper(config: dict, dataframe: df) -> df:
+        return func()
+        # return func(config, dataframe.copy())
+    return wrapper

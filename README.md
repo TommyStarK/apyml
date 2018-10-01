@@ -1,7 +1,7 @@
 # apyml
 **Under heavy development**
 
-`apyml`- a Machine learning model building tool for humans..
+`apyml`- a Machine learning model building tool for humans.
 
 
 ## Requirements
