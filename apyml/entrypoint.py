@@ -1,9 +1,6 @@
 
 from apyml import __version__ as apymlVersion, ExitStatus
 from apyml.apyml import APYML
-from apyml.context import Context
-from apyml.internal import init_logger
-
 
 def program(args: dict = None):
     mode, report = None, None
@@ -20,18 +17,24 @@ def program(args: dict = None):
     app.report()
 
 def main() -> int:
-    from apyml.cli import parser
-    args = vars(parser.parse_args())
-
-    from . import ExitStatus
-    exit_status = ExitStatus.OK
-
     try:
+        from apyml.cli import parser
+        args = vars(parser.parse_args())
+
+        from . import ExitStatus
+        exit_status = ExitStatus.OK
+
+        from apyml.context import Context
         Context()
+
+        from apyml.internal.logging import init_logger
         init_logger()
     except KeyboardInterrupt:
         raise
         exit_status = ExitStatus.CTRL_C
+    except Exception as e:
+        raise
+        exit_status = ExitStatus.ERROR
     else:
         try:
             program(args=args)
@@ -39,6 +42,6 @@ def main() -> int:
             raise
             exit_status = ExitStatus.CTRL_C
         except Exception as e:
-            print(f'ERROR: {e}')
+            raise
             exit_status = ExitStatus.ERROR
     return exit_status

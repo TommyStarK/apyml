@@ -1,6 +1,6 @@
 import argparse
 
-from apyml.internal import Mode
+from apyml.internal.mode import Mode
 
 parser = argparse.ArgumentParser()
 group = parser.add_mutually_exclusive_group()

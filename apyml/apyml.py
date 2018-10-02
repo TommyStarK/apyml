@@ -3,10 +3,9 @@ from multiprocessing import Pool
 from apyml.core import Framator
 from apyml.core import Preprocess
 from apyml.context import Context
-from apyml.internal import Filepath
-from apyml.internal import merkle_root
-from apyml.internal import fatal
-from apyml.internal import info
+# from apyml.internal import Filepath
+from apyml.internal import *
+from apyml.internal.hash import merkle_root
 
 context = Context()
 
@@ -84,6 +83,3 @@ class APYML(object):
 
     def report(self):
         info('APYML writing report to disk...')
-
-    # def run(self):
-    #     self._handler[self._mode]()

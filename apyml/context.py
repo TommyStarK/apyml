@@ -1,8 +1,8 @@
 import json
 import os
 
-from apyml.internal import info
-from apyml.internal import Singleton
+from apyml.internal import *
+from apyml.internal.metaclass import Singleton
 
 class Context(metaclass=Singleton):
     def __init__(self):

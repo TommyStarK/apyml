@@ -1,8 +1,8 @@
 from pandas import DataFrame as df
 
-from ..context import Context
-from ..internal import info
-from ..internal import merkle_root
+from apyml.context import Context
+from apyml.internal import *
+from apyml.internal.hash import merkle_root
 
 def build_directive(func: object):
     def wrapper(dataframe: df) -> object:
