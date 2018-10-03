@@ -31,7 +31,7 @@ def main() -> int:
         init_logger()
     except KeyboardInterrupt:
         from apyml.internal import info
-        info(f'Keyboard interruption (ctrl+c).')
+        info('Keyboard interruption (ctrl+c).')
         exit_status = ExitStatus.CTRL_C
         raise
     except Exception as e:
@@ -44,7 +44,7 @@ def main() -> int:
             program(args=args)
         except KeyboardInterrupt:
             from apyml.internal import info
-            info(f'Keyboard interruption (ctrl+c).')
+            info('Keyboard interruption (ctrl+c).')
             exit_status = ExitStatus.CTRL_C
             raise
         except Exception as e:

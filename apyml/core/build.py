@@ -14,12 +14,9 @@ def run_build_directive(dataframe: pandas.DataFrame, func: str, name: str, descr
     model = getattr(importlib.import_module('apyml.directives.directives'), func)(dataframe.copy())
     dataframe_hash = context.get_from_context(f'{to_predict}-dataframe_hash')
 
-    print(model)
-    print(dataframe_hash)
-
     if not os.path.exists(f'{context.get_store_root()}/{func}/{name}'):
         os.makedirs(f'{context.get_store_root()}/{func}/{name}')
 
-    pickle.dump(model, open(f'{context.get_store_root()}/{func}/{name}/{dataframe_hash}'), 'wb')
+    pickle.dump(model, open(f'{context.get_store_root()}/{func}/{name}/{dataframe_hash}', 'wb'))
 
     

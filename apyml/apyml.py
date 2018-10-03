@@ -79,17 +79,6 @@ class APYML(object):
         for result in iter(self._tasks.get, None):
             print(result)
 
-    # def _build(self):
-    #     try:
-    #         import pickle
-    #         self._init_build()
-    #         from apyml.core import build
-    #         for directive, model in build(self._dataframe):
-    #             h = context.get_from_context(f'{directive}-dataframe_hash')
-    #             pickle.dump(model, open(f"{context.get_store_root()}/{directive}/{h}", 'wb'))
-    #     except Exception as e:
-    #         raise e
-
     # def _predict_routine(self, path: str, models: list):
     #     from apyml.internal import merkle_root
     #     h = merkle_root(self._dataframe.columns)

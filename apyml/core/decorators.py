@@ -15,7 +15,6 @@ def build_directive(func: object):
         if config['to_predict'] in targets:
             targets.remove(config['to_predict'])
         context.set_to_context(f"{config['to_predict']}-dataframe_hash", merkle_root(targets))
-        # info('Building model...')
         return func(dataframe)
     return wrapper
 
