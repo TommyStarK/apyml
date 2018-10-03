@@ -1,6 +1,6 @@
 {
     "data": {
-        "index": "",
+        "index": "ivname",
         "to_predict": ""
     },
     "readers_opts": {
@@ -14,15 +14,27 @@
             "engine": "auto"
         }
     },
-    "preprocessing": {
-        "filling_strategy": "strategy",
-        "routines": []
+    "preprocessing_opts": {
+        "filling_strategy": "strategy"
     },
-    "build": {
-        "targets": [""]
-    },
-    "predict": {
-        "targets": [""],
-        "build_directives": []
-    }
+    "build": [
+        {
+            "name": "test",
+            "description": "this is a description",
+            "preprocessing_directives": [
+                {
+                    "name": "set_index"
+                },
+                {
+                    "name": "shuffling"
+                }
+            ],
+            "build_directive": "future_sales_prediction"
+        }
+    ],
+    "predict": [
+        {
+
+        }
+    ]
 }

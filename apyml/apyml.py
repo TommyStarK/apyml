@@ -1,21 +1,25 @@
+from multiprocessing import Manager
 from multiprocessing import Pool
+from multiprocessing import Queue
 from os.path import splitext
 
 from apyml import ColorStatus
 from apyml.context import Context
 from apyml.core.dataframe import create_dataframe_from_src
-from apyml.core.preprocessing import test
+from apyml.core.preprocessing import run_preprocessing_directives
 from apyml.internal import *
 from apyml.internal.hash import merkle_root
 
 context = Context()
+tasks = Manager().Queue()
 
 class APYML(object):
-    def __init__(self, src: str, mode: str = None, report: str = None):
+    def __init__(self, src: str, mode: str = None, report: str = None, tasks: Queue = tasks):
         self._dataframe = None
         self._infos = {}
         self._mode = 'predict' if not mode else mode
         self._src = src
+        self._tasks = tasks
 
         name, ext = '' , ''
         if self._src.find('s3://') > -1:
@@ -31,6 +35,15 @@ class APYML(object):
         self._infos['path'] = name + ext
         self._infos['name'] = name[name.rfind('/')+1:]+ext
         info(f'Core initialization [{ColorStatus.SUCCESS}]')
+
+    def _worker(self, job: dict, preprocessing_opts: dict):
+        directives = job['preprocessing_directives']
+        self._dataframe = run_preprocessing_directives(self._dataframe, self._mode, directives, **preprocessing_opts)
+        info(f'Data preprocessing [{ColorStatus.SUCCESS}]')
+        print(self._dataframe.head())
+
+
+        # self._tasks.put(job)
     
     def run(self):
         try:
@@ -41,27 +54,23 @@ class APYML(object):
 
             self._dataframe = create_dataframe_from_src(path, typ, ext, **tmp)
             info(f'Dataframe creation [{ColorStatus.SUCCESS}]')
-            print(self._dataframe.describe())
+            print(self._dataframe.head())
 
-            # test()
+            jobs = context.get_config(self._mode)[self._mode]
+            preprocessing_opts = context.get_config('preprocessing_opts')
+            processes = len(jobs)
+  
+            pool = Pool(processes=processes)
+            pool.starmap(self._worker, [(job, preprocessing_opts) for job in jobs])
+            pool.close()
         except Exception:
             raise
     
     def report(self):
-        info('APYML writing report to disk...')        
-
-    # def _init_build(self, predict: bool = False):
-    #     try:
-    #         self.infos = Filepath(self._datapath).get_infos()
-    #         self._dataframe = Framator(self.infos).create_dataframe()
-    #         info('Dataframe creation [\033[0;32mOK\033[0m]')
-    #         self._dataframe = Preprocess(self._dataframe, predict=predict)
-    #         info('Data preprocessing [\033[0;32mOK\033[0m]')
-    #         
-    #     except Exception as e:
-    #         
-    #         fatal(e)
-    #         raise
+        info('Writing report to disk...')
+        self._tasks.put(None)
+        for result in iter(self._tasks.get, None):
+            print(result)
 
     # def _build(self):
     #     try:

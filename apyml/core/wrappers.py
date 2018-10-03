@@ -23,7 +23,6 @@ def predict_directive(func: object):
     return wrapper
 
 def preprocess_directive(func: object):
-    def wrapper(config: dict, dataframe: df) -> df:
-        return func()
-        # return func(config, dataframe.copy())
+    def wrapper(dataframe: df, config: dict) -> df:
+        return func(dataframe.copy(), config)
     return wrapper

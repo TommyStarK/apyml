@@ -29,6 +29,8 @@ class Context(metaclass=Singleton):
             self._store[root] = files
 
     def get_config(self, key: str) -> dict:
+        if isinstance(self._config[key], list):
+            return {key: [dict(**tmp)] for tmp in self._config[key]}
         return dict(**self._config[key])
 
     def get_store(self) -> dict:
