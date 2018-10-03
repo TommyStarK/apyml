@@ -10,3 +10,7 @@ class ExitStatus:
     OK = 0
     ERROR = 1
     CTRL_C = 130
+
+class ColorStatus:
+    SUCCESS = '\033[0;32mok\033[0m'
+    FAILURE = '\033[0;31mfailure\033[0m'

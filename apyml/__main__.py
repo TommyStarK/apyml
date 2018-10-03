@@ -1,4 +1,4 @@
-"""The main entry point. Invoke as `apyml' or `python -m apyml'.
+"""The main entry point. Invoke as `apyml' or `python3 -m apyml'.
 """
 import sys
 

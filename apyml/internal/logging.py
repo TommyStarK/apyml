@@ -6,7 +6,8 @@ def init_logger():
     handler.setFormatter(formatter)
     logger = logging.getLogger('root')
     logger.addHandler(handler)
-    info('Initialization logger succeeded')
+    from apyml import ColorStatus
+    info(f'Logger initialization [{ColorStatus.SUCCESS}]')
 
 def critical(message: str):
     logger = logging.getLogger('root')

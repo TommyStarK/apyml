@@ -3,7 +3,7 @@
         "index": "",
         "to_predict": ""
     },
-    "loaders": {
+    "readers_opts": {
         "csv": {
             "sep": ","
         },

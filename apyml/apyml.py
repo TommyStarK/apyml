@@ -1,28 +1,54 @@
 from multiprocessing import Pool
+from os.path import splitext
 
-from apyml.core import Framator
-from apyml.core import Preprocess
+from apyml import ColorStatus
 from apyml.context import Context
-# from apyml.internal import Filepath
+from apyml.core.dataframe import create_dataframe_from_src
+from apyml.core.preprocessing import test
 from apyml.internal import *
 from apyml.internal.hash import merkle_root
 
 context = Context()
 
 class APYML(object):
-    def __init__(self, datapath: str, mode: str = None, report: str = None):
+    def __init__(self, src: str, mode: str = None, report: str = None):
         self._dataframe = None
-        self._datapath = datapath
+        self._infos = {}
         self._mode = 'predict' if not mode else mode
-        # self._objective = { 
-        #     'build': self._build, 
-        #     'predict': self._predict 
-        # }
+        self._src = src
 
+        name, ext = '' , ''
+        if self._src.find('s3://') > -1:
+            from urllib.parse import urlparse
+            infos = urlparse(self._src)
+            self._infos['bucket'] = infos.netloc
+            name, ext = splitext(infos.path)
+            self._infos['type'] = 'S3'
+        else:
+            name, ext = splitext(self._src)
+            self._infos['type'] = 'File'
+        self._infos['extension'] = ext
+        self._infos['path'] = name + ext
+        self._infos['name'] = name[name.rfind('/')+1:]+ext
+        info(f'Core initialization [{ColorStatus.SUCCESS}]')
     
     def run(self):
-        Preprocess()
+        try:
+            tmp = dict(self._infos)
+            path, typ, ext = tmp['path'], tmp['type'], tmp['extension']
+            for k in ['path', 'type', 'extension']:
+                tmp.pop(k, None)
 
+            self._dataframe = create_dataframe_from_src(path, typ, ext, **tmp)
+            info(f'Dataframe creation [{ColorStatus.SUCCESS}]')
+            print(self._dataframe.describe())
+
+            # test()
+        except Exception:
+            raise
+    
+    def report(self):
+        info('APYML writing report to disk...')        
 
     # def _init_build(self, predict: bool = False):
     #     try:
@@ -31,9 +57,9 @@ class APYML(object):
     #         info('Dataframe creation [\033[0;32mOK\033[0m]')
     #         self._dataframe = Preprocess(self._dataframe, predict=predict)
     #         info('Data preprocessing [\033[0;32mOK\033[0m]')
-    #         info('APYML initialization [\033[0;32mOK\033[0m]')
+    #         
     #     except Exception as e:
-    #         fatal('APYML initialization [\033[0;31mFAILED\033[0m]')
+    #         
     #         fatal(e)
     #         raise
 
@@ -80,6 +106,3 @@ class APYML(object):
     #         for k, v in store.items():
     #             if k.find(target) > -1:
     #                 yield (k, v)
-
-    def report(self):
-        info('APYML writing report to disk...')
