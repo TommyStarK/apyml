@@ -29,6 +29,6 @@ def create_dataframe_from_src(path: str, typ: str, extension: str, **optional_ar
     from apyml.context import Context
     context = Context()
 
-    readers_opts = context.get_config('readers_opts')
+    readers_opts = context.get_from_config('readers_opts')
     handler = Handler(readers_opts)
     return handler.read_from_src(path, typ, extension, **optional_args)

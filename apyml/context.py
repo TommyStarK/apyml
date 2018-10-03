@@ -1,49 +1,54 @@
 import json
 import os
 
-from apyml.internal import *
+from apyml import ColorStatus
+from apyml.internal import info, fatal
 from apyml.internal.metaclass import Singleton
 
 class Context(metaclass=Singleton):
     def __init__(self):
-        self._root = 'apyml/models'
-        self._directives = 'apyml.directives.directives'
+        self._config = {}
         self._context = {}
-        self._load_config()
-        self._load_models()
-        info('Context initialization [\033[0;32mOK\033[0m]')
+        self._path_to_directives = 'apyml.directives.directives'
+        self._path_to_store = 'apyml/models'
+        self._store = {}
 
-    def _load_config(self):
         with open('config.json') as f:
             self._config = json.load(f)
-            if not self._config:
-                from apyml.internal import fatal
-                fatal('Initialization context [\033[0;31mFAILED\033[0m]')
-                raise RuntimeError('Unexpected error occurred during the loading of the configuration.')
 
-    def _load_models(self):
-        self._store = {}
-        for root, dirs, files in os.walk(self._root):
+        for root, dirs, files in os.walk(self._path_to_store):
             for subdir in dirs:
                 self._store[os.path.join(root, subdir)] = []
             self._store[root] = files
 
-    def get_config(self, key: str) -> dict:
-        if isinstance(self._config[key], list):
-            return {key: [dict(**tmp)] for tmp in self._config[key]}
-        return dict(**self._config[key])
+    def get_from_config(self, target) -> dict:
+        keys = []
+        if isinstance(target, str):
+            keys = [target]
+        elif isinstance(target, list):
+            keys = target
+        else:
+            raise ValueError('Context.get_from_config: param must be either a string or a list.')
 
-    def get_store(self) -> dict:
-        return self._store
-    
-    def get_directives(self) -> str:
-        return self._directives
+        body = []
+        for k in keys:
+            tmp = {}
+            if isinstance(self._config[k], list):
+                tmp = {k: [dict(**i)] for i in self._config[k]}
+            else:
+                tmp = dict(**self._config[k])
+            body.append(tmp)
 
-    def get_store_root(self) -> str:
-        return self._root
+        return {k: v for i in body for k, v in i.items()}
 
-    def set_to_context(self, key: str, item: object):
+    def get_directives_path(self) -> str:
+        return self._path_to_directives
+
+    def get_store_path(self) -> str:
+        return self._path_to_store
+
+    def get(self, key: str) -> object:
+        return self._context.get(key, None)
+
+    def set(self, key: str, item: object):
         self._context[key] = item
-
-    def get_from_context(self, key: str) -> object:
-        return self._context[key]

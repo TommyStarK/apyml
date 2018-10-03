@@ -1,6 +1,6 @@
-
 from apyml import __version__ as apymlVersion, ExitStatus, ColorStatus
 from apyml.apyml import APYML
+from apyml.internal import info, fatal
 
 def program(args: dict = None):
     mode, report = None, None
@@ -24,18 +24,17 @@ def main() -> int:
         from apyml.cli import parser
         args = vars(parser.parse_args())
 
-        from apyml.context import Context
-        Context()
-
         from apyml.internal.logging import init_logger
         init_logger()
+
+        from apyml.context import Context
+        Context()
+        info(f'Context creation [{ColorStatus.SUCCESS}]')
     except KeyboardInterrupt:
-        from apyml.internal import info
         info('Keyboard interruption (ctrl+c).')
         exit_status = ExitStatus.CTRL_C
         raise
     except Exception as e:
-        from apyml.internal import fatal
         fatal(f'Core initialization [{ColorStatus.FAILURE}]')
         exit_status = ExitStatus.ERROR
         raise
@@ -43,12 +42,10 @@ def main() -> int:
         try:
             program(args=args)
         except KeyboardInterrupt:
-            from apyml.internal import info
             info('Keyboard interruption (ctrl+c).')
             exit_status = ExitStatus.CTRL_C
             raise
         except Exception as e:
-            from apyml.internal import fatal
             fatal(e)
             exit_status = ExitStatus.ERROR
             raise

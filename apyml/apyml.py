@@ -63,8 +63,8 @@ class APYML(object):
             self._dataframe = create_dataframe_from_src(path, typ, ext, **tmp)
             info(f'Dataframe creation [{ColorStatus.SUCCESS}]')
 
-            jobs = context.get_config(self._mode)[self._mode]
-            preprocessing_opts = context.get_config('preprocessing_opts')
+            jobs = context.get_from_config(self._mode)[self._mode]
+            preprocessing_opts = context.get_from_config('preprocessing_opts')
             processes = len(jobs)
   
             pool = Pool(processes=processes)

@@ -10,7 +10,7 @@ def run_preprocessing_directives(dataframe: df, mode:str, directives: list, **op
         raise RuntimeError('Unprocessable dataframe. None, not of type pandas.DataFrame or empty dataframe')
 
     tmp = dataframe.copy()
-    conf = context.get_config('data')
+    conf = context.get_from_config('data')
     for directive in directives:
         tmp = getattr(importlib.import_module('apyml.directives.directives'), directive['name'])(tmp, conf)
     return tmp
