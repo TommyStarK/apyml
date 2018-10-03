@@ -8,7 +8,6 @@ from apyml.context import Context
 from apyml.core.dataframe import create_dataframe_from_src
 from apyml.core.preprocessing import run_preprocessing_directives
 from apyml.internal import *
-from apyml.internal.hash import merkle_root
 
 context = Context()
 tasks = Manager().Queue()
@@ -37,12 +36,21 @@ class APYML(object):
         info(f'Core initialization [{ColorStatus.SUCCESS}]')
 
     def _worker(self, job: dict, preprocessing_opts: dict):
-        directives = job['preprocessing_directives']
-        self._dataframe = run_preprocessing_directives(self._dataframe, self._mode, directives, **preprocessing_opts)
+        job_name = job['name']
+        job_description = job['description']
+        preprocess_tasks = job['preprocessing_directives']
+        job_func = job[f'{self._mode}_directive']
+
+        self._dataframe = run_preprocessing_directives(self._dataframe, self._mode, preprocess_tasks, **preprocessing_opts)
         info(f'Data preprocessing [{ColorStatus.SUCCESS}]')
-        print(self._dataframe.head())
 
-
+        if self._mode == 'build':
+            from apyml.core.build import run_build_directive
+            info(f'Building model {job_name}...')
+            run_build_directive(self._dataframe, job_func, job_name, job_description)
+            info(f'Model {job_name} built [{ColorStatus.SUCCESS}]')
+        else:
+            pass
         # self._tasks.put(job)
     
     def run(self):
@@ -54,7 +62,6 @@ class APYML(object):
 
             self._dataframe = create_dataframe_from_src(path, typ, ext, **tmp)
             info(f'Dataframe creation [{ColorStatus.SUCCESS}]')
-            print(self._dataframe.head())
 
             jobs = context.get_config(self._mode)[self._mode]
             preprocessing_opts = context.get_config('preprocessing_opts')

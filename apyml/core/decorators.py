@@ -4,6 +4,8 @@ from apyml.context import Context
 from apyml.internal import *
 from apyml.internal.hash import merkle_root
 
+context = Context()
+
 def build_directive(func: object):
     def wrapper(dataframe: df) -> object:
         config = context.get_config('data')

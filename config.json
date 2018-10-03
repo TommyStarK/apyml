@@ -1,7 +1,7 @@
 {
     "data": {
         "index": "ivname",
-        "to_predict": ""
+        "to_predict": "future_sales"
     },
     "readers_opts": {
         "csv": {
@@ -24,6 +24,9 @@
             "preprocessing_directives": [
                 {
                     "name": "set_index"
+                },
+                {
+                    "name": "label_encoding"
                 },
                 {
                     "name": "shuffling"
