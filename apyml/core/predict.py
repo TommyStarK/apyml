@@ -1,6 +1,3 @@
-import pandas
-
-from apyml.context import Context
 import importlib
 import types
 
@@ -11,31 +8,43 @@ from apyml.context import Context
 from apyml.internal import info, fatal
 
 def run_predict_directive(dataframe: pandas.DataFrame, job: dict):
+    context = Context()
     build_name = job['name']
     model_name = job['model_name']
     predict_func = job['predict_directive']
+    path = f'{context.get_store_path()}/{build_name}/{model_name}'
 
-    context = Context()
-    target = context.get_from_config('data')['target']
-    dest = f'{context.get_store_path()}/{build_name}/{model_name}'
+    try:
+        info(f'Running model(s)...')
+        ret = getattr(
+            importlib.import_module('apyml.directives.directives'), 
+            predict_func
+        )(dataframe, path)
 
-    info(f'Running predictive model(s)...')
-    res = getattr(importlib.import_module('apyml.directives.directives'), predict_func)(dataframe, dest, target)
+        def predictions_to_dataframe(true: pandas.Series, preds) -> pandas.DataFrame:
+            df = true.to_frame()
+            df['predictions'] = preds
+            return df.copy()
 
-    from sklearn.metrics import mean_squared_error
-    import matplotlib.pyplot as plt
+        final = pandas.DataFrame(
+            index=[context.get_from_config('dataset')['index']], 
+            columns=[context.get_from_config('dataset')['target'], 'predictions']
+        )
+        print("1111", final.head(20))
 
-    def process_preds(true, preds):
-        print(f"MSE -> {mean_squared_error(true, preds)}")
-        fig, ax = plt.subplots()
-        ax.scatter(true, preds, edgecolors=(0, 0, 0))
-        ax.plot([true.min(), true.max()], [true.min(), true.max()], 'k--', lw=4)
-        ax.set_xlabel('Measured')
-        ax.set_ylabel('Predicted')
-        plt.show()
+        if isinstance(ret, types.GeneratorType):
+            for r in ret:
+                tmp = predictions_to_dataframe(r[0], r[1])
+                print("22222", tmp.head(20))
+                final.append(tmp, ignore_index=True)
+                print("33333", final.head(20))
+        else:
+            tmp = predictions_to_dataframe(ret[0], ret[1])
+            print("22222", tmp.head(20))
+            final.append(tmp, ignore_index=True)
+            print("33333", final.head(20))
 
-    if isinstance(res, types.GeneratorType):
-        for r in res:
-            process_preds(r[0], r[1])
-        return
-    process_preds(res[0], res[1])
+        context.set(build_name, final.copy())
+    except Exception:
+        fatal(f'Running model(s)... [{ColorStatus.FAILURE}]')
+        raise

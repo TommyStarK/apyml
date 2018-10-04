@@ -1,5 +1,5 @@
 {
-    "data": {
+    "dataset": {
         "index": "ivname",
         "target": "future_sales"
     },
@@ -14,9 +14,6 @@
             "engine": "auto"
         }
     },
-    "preprocessing_opts": {
-        "filling_strategy": "strategy"
-    },
     "build": [
         {
             "name": "test",
@@ -24,9 +21,6 @@
             "preprocessing_directives": [
                 {
                     "name": "set_index"
-                },
-                {
-                    "name": "remove_undesired"
                 },
                 {
                     "name": "label_encoding"
@@ -38,7 +32,7 @@
                     "name": "shuffling"
                 }
             ],
-            "build_directive": "future_sales_by_cohort"
+            "build_directive": "future_sales_basic"
         }
     ],
     "predict": [
@@ -50,10 +44,13 @@
                     "name": "set_index"
                 },
                 {
-                    "name": "remove_undesired"
+                    "name": "remove_undesired_columns"
                 },
                 {
                     "name": "label_encoding"
+                },
+                {
+                    "name": "shuffling"
                 }
             ],
             "model_name": "future_sales_by_cohort",

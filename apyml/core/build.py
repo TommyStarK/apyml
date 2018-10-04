@@ -3,6 +3,8 @@ import pickle
 import os
 import types
 
+import os
+
 import pandas
 
 from apyml import ColorStatus
@@ -15,14 +17,12 @@ def run_build_directive(dataframe: pandas.DataFrame, job: dict):
     context = Context()
     build_name = job['name']
     build_func = job['build_directive']
-    target = context.get_from_config('data')['target']
-    ctx_key = f'{os.getpid()}-{target}-{dataframe.shape[0]}-{dataframe.shape[1]}'
     dest = f'{context.get_store_path()}/{build_name}/{build_func}'
     
     try:
         info(f'Building model {build_name}...')
         res = getattr(importlib.import_module('apyml.directives.directives'), build_func)(dataframe.copy())
-        dataframe_hash = context.get(ctx_key)
+        dataframe_hash = context.get(os.getpid())
 
         if not os.path.exists(dest):
             os.makedirs(dest)

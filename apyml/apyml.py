@@ -2,6 +2,7 @@ from multiprocessing import Manager
 from multiprocessing import Pool
 from multiprocessing import Queue
 from os.path import splitext
+import time
 
 from apyml import ColorStatus
 from apyml.context import Context
@@ -36,13 +37,13 @@ class APYML(object):
         info(f'Core initialization [{ColorStatus.SUCCESS}]')
 
     def _worker(self, job: dict):
-        try:
-            directives = job['preprocessing_directives']
-            self._dataframe = run_preprocessing_directives(self._dataframe, directives)
-            info(f'Data preprocessing [{ColorStatus.SUCCESS}]')
-        except Exception:
-            critical(f'Data preprocessing [{ColorStatus.FAILURE}]')
-            raise
+        job_duration = 0
+        preprocess_duration = 0
+        preprocess_start = time.time()
+        directives = job['preprocessing_directives']
+
+        self._dataframe = run_preprocessing_directives(self._dataframe, directives)
+        job_start = time.time()
 
         if self._mode == 'build':
             from apyml.core.build import run_build_directive
@@ -50,8 +51,15 @@ class APYML(object):
         else:
             from apyml.core.predict import run_predict_directive
             run_predict_directive(self._dataframe, job)
-
-        self._tasks.put({'job': job, 'timer_preprocessing': None, 'timer_job': None})
+ 
+        now = time.time()
+        self._tasks.put(
+            {
+                'job': job, 
+                'timer_preprocessing': f'{job_start-preprocess_start}s', 
+                'timer_job': f'{now-job_start}s'
+            }
+        )
     
     def run(self):
         tmp = dict(self._infos)
@@ -77,5 +85,13 @@ class APYML(object):
     def report(self):
         info('Writing report to disk...')
         self._tasks.put(None)
-        for result in iter(self._tasks.get, None):
-            print(result)
+        for item in iter(self._tasks.get, None):
+            job = item['job']
+            preprocess_time = item['timer_preprocessing']
+            job_time = item['timer_job']
+
+            print(job)
+            data = context.get(job['name'])
+            print(data)
+            if data:
+                print(data.head(30))
