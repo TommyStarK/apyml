@@ -1,4 +1,5 @@
 import json
+import pickle
 import os
 
 from apyml import ColorStatus
@@ -20,6 +21,13 @@ class Context(metaclass=Singleton):
             for subdir in dirs:
                 self._store[os.path.join(root, subdir)] = []
             self._store[root] = files
+
+    def get_available_models(self, dest: str, dataframe_hash: str) -> list:
+        res = []
+        for _, filename in enumerate(sorted(os.listdir(dest)), start=1):
+            if filename.find(dataframe_hash) > -1:
+                res.append(pickle.load(open(f'{dest}/{filename}', 'rb')))
+        return res
 
     def get_from_config(self, target) -> dict:
         keys = []

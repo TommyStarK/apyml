@@ -22,8 +22,16 @@ def build_directive(func: object):
     return wrapper
 
 def predict_directive(func: object):
-    def wrapper():
-        func()
+    def wrapper(dataframe: df, dest: str, target: str) -> object:
+        columns = list(dataframe.columns.values)
+        target = context.get_from_config('data')['target']
+
+        if target in columns:
+            columns.remove(target)
+
+        dataframe_hash = merkle_root(columns)
+        models = context.get_available_models(dest, dataframe_hash)
+        return func(dataframe, models)
     return wrapper
 
 def preprocess_directive(func: object):

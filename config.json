@@ -26,18 +26,38 @@
                     "name": "set_index"
                 },
                 {
+                    "name": "remove_undesired"
+                },
+                {
                     "name": "label_encoding"
+                },
+                {
+                    "name": "outliers"
                 },
                 {
                     "name": "shuffling"
                 }
             ],
-            "build_directive": "future_sales_prediction"
+            "build_directive": "future_sales_by_cohort"
         }
     ],
     "predict": [
         {
-
+            "name": "test",
+            "description": "this is a description",
+            "preprocessing_directives": [
+                {
+                    "name": "set_index"
+                },
+                {
+                    "name": "remove_undesired"
+                },
+                {
+                    "name": "label_encoding"
+                }
+            ],
+            "model_name": "future_sales_by_cohort",
+            "predict_directive": "predict_future_sales_by_cohort"
         }
     ]
 }

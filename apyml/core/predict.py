@@ -1,40 +1,41 @@
 import pandas
 
 from apyml.context import Context
+import importlib
+import types
 
+import pandas
+
+from apyml import ColorStatus
+from apyml.context import Context
+from apyml.internal import info, fatal
 
 def run_predict_directive(dataframe: pandas.DataFrame, job: dict):
-    pass
+    build_name = job['name']
+    model_name = job['model_name']
+    predict_func = job['predict_directive']
 
-# def _predict_routine(self, path: str, models: list):
-#     from apyml.internal import merkle_root
-#     h = merkle_root(self._dataframe.columns)
-#     print(h)
-#     if h not in models:
-#         raise RuntimeError('No model found for this kind of dataframe')
-#     target = models[models.index(h)]
-#     import pickle
-#     model = pickle.load(open(f'{path}/{target}', 'rb'))
-#     self._preds = model.predict(self._dataframe)
-#     print(self._preds)
+    context = Context()
+    target = context.get_from_config('data')['target']
+    dest = f'{context.get_store_path()}/{build_name}/{model_name}'
 
+    info(f'Running predictive model(s)...')
+    res = getattr(importlib.import_module('apyml.directives.directives'), predict_func)(dataframe, dest, target)
 
-# def _predict(self):
-#     self.config = context.get_config('predict')
+    from sklearn.metrics import mean_squared_error
+    import matplotlib.pyplot as plt
 
-#     try:
-#         store = context.get_store()
-#         self._init_build(predict=True)
-#         pool = Pool(processes=len(self.config['targets']))
-#         pool.starmap(self._predict_routine, [(path, models) for path, models in self._retrieve_valid_model(store)])
-#         pool.close()
-#         pool.join()
-#     except Exception as e:
-#         fatal(e)
-#         sys.exit(1)
+    def process_preds(true, preds):
+        print(f"MSE -> {mean_squared_error(true, preds)}")
+        fig, ax = plt.subplots()
+        ax.scatter(true, preds, edgecolors=(0, 0, 0))
+        ax.plot([true.min(), true.max()], [true.min(), true.max()], 'k--', lw=4)
+        ax.set_xlabel('Measured')
+        ax.set_ylabel('Predicted')
+        plt.show()
 
-# def _retrieve_valid_model(self, store: dict) -> tuple:
-#     for target in self.config['targets']:
-#         for k, v in store.items():
-#             if k.find(target) > -1:
-#                 yield (k, v)
+    if isinstance(res, types.GeneratorType):
+        for r in res:
+            process_preds(r[0], r[1])
+        return
+    process_preds(res[0], res[1])
