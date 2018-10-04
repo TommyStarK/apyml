@@ -7,6 +7,7 @@
 ## Requirements
 
 - [Python3.6](https://www.python.org/downloads/release/python-360/)
+- [Pandas>=0.23](https://pypi.org/project/pandas/)
 
 ## Install
 
