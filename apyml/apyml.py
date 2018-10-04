@@ -35,40 +35,35 @@ class APYML(object):
         self._infos['name'] = name[name.rfind('/')+1:]+ext
         info(f'Core initialization [{ColorStatus.SUCCESS}]')
 
-    def _worker(self, job: dict, preprocessing_opts: dict):
-        job_name = job['name']
-        job_description = job['description']
-        preprocess_tasks = job['preprocessing_directives']
-        job_func = job[f'{self._mode}_directive']
-
-        self._dataframe = run_preprocessing_directives(self._dataframe, self._mode, preprocess_tasks, **preprocessing_opts)
+    def _worker(self, job: dict):
+        directives = job['preprocessing_directives']
+        self._dataframe = run_preprocessing_directives(self._dataframe, directives)
         info(f'Data preprocessing [{ColorStatus.SUCCESS}]')
 
         if self._mode == 'build':
             from apyml.core.build import run_build_directive
-            info(f'Building model {job_name}...')
-            run_build_directive(self._dataframe, job_func, job_name, job_description)
-            info(f'Model {job_name} built [{ColorStatus.SUCCESS}]')
+            run_build_directive(self._dataframe, job)
         else:
-            pass
-        # self._tasks.put(job)
+            from apyml.core.predict import run_predict_directive
+            run_predict_directive(self._dataframe, job)
+
+        self._tasks.put({'job': job, 'timer_preprocessing': None, 'timer_job': None})
     
     def run(self):
         try:
             tmp = dict(self._infos)
+            jobs = context.get_from_config(self._mode)[self._mode]
+            process_number = len(jobs)
             path, typ, ext = tmp['path'], tmp['type'], tmp['extension']
+            
             for k in ['path', 'type', 'extension']:
                 tmp.pop(k, None)
 
-            self._dataframe = create_dataframe_from_src(path, typ, ext, **tmp)
+            self._dataframe = create_dataframe_from_src(path, typ, ext, storage_infos={**tmp})
             info(f'Dataframe creation [{ColorStatus.SUCCESS}]')
 
-            jobs = context.get_from_config(self._mode)[self._mode]
-            preprocessing_opts = context.get_from_config('preprocessing_opts')
-            processes = len(jobs)
-  
-            pool = Pool(processes=processes)
-            pool.starmap(self._worker, [(job, preprocessing_opts) for job in jobs])
+            pool = Pool(processes=process_number)
+            pool.starmap(self._worker, [(job,) for job in jobs])
             pool.close()
         except Exception:
             raise
@@ -78,36 +73,3 @@ class APYML(object):
         self._tasks.put(None)
         for result in iter(self._tasks.get, None):
             print(result)
-
-    # def _predict_routine(self, path: str, models: list):
-    #     from apyml.internal import merkle_root
-    #     h = merkle_root(self._dataframe.columns)
-    #     print(h)
-    #     if h not in models:
-    #         raise RuntimeError('No model found for this kind of dataframe')
-    #     target = models[models.index(h)]
-    #     import pickle
-    #     model = pickle.load(open(f'{path}/{target}', 'rb'))
-    #     self._preds = model.predict(self._dataframe)
-    #     print(self._preds)
-
-
-    # def _predict(self):
-    #     self.config = context.get_config('predict')
-
-    #     try:
-    #         store = context.get_store()
-    #         self._init_build(predict=True)
-    #         pool = Pool(processes=len(self.config['targets']))
-    #         pool.starmap(self._predict_routine, [(path, models) for path, models in self._retrieve_valid_model(store)])
-    #         pool.close()
-    #         pool.join()
-    #     except Exception as e:
-    #         fatal(e)
-    #         sys.exit(1)
-
-    # def _retrieve_valid_model(self, store: dict) -> tuple:
-    #     for target in self.config['targets']:
-    #         for k, v in store.items():
-    #             if k.find(target) > -1:
-    #                 yield (k, v)

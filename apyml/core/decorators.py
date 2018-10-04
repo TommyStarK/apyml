@@ -1,3 +1,4 @@
+import os
 from pandas import DataFrame as df
 
 from apyml.context import Context
@@ -8,13 +9,15 @@ context = Context()
 
 def build_directive(func: object):
     def wrapper(dataframe: df) -> object:
-        config = context.get_from_config('data')
-        if 'to_predict' not in config:
-            raise KeyError('Missing key `to_predict` in config.')
-        targets = list(dataframe.columns.values)
-        if config['to_predict'] in targets:
-            targets.remove(config['to_predict'])
-        context.set(f"{config['to_predict']}-dataframe_hash", merkle_root(targets))
+        columns = list(dataframe.columns.values)
+        target = context.get_from_config('data')['target']
+        ctx_key = f'{os.getpid()}-{target}-{dataframe.shape[0]}-{dataframe.shape[1]}'
+
+        if target in columns:
+            columns.remove(target)
+        dataframe_hash = merkle_root(columns)
+        context.set(ctx_key, dataframe_hash)
+
         return func(dataframe)
     return wrapper
 

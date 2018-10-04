@@ -5,12 +5,11 @@ from apyml.context import Context
 
 context = Context()
 
-def run_preprocessing_directives(dataframe: df, mode:str, directives: list, **optional_args) -> df:
+def run_preprocessing_directives(dataframe: df, directives: list) -> df:
     if dataframe is None or not isinstance(dataframe, df) or dataframe.empty:
         raise RuntimeError('Unprocessable dataframe. None, not of type pandas.DataFrame or empty dataframe')
 
-    tmp = dataframe.copy()
-    conf = context.get_from_config('data')
+    config = context.get_from_config(['data', 'preprocessing_opts'])
     for directive in directives:
-        tmp = getattr(importlib.import_module('apyml.directives.directives'), directive['name'])(tmp, conf)
-    return tmp
+        dataframe = getattr(importlib.import_module('apyml.directives.directives'), directive['name'])(dataframe, config)
+    return dataframe

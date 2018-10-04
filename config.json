@@ -1,7 +1,7 @@
 {
     "data": {
         "index": "ivname",
-        "to_predict": "future_sales"
+        "target": "future_sales"
     },
     "readers_opts": {
         "csv": {
