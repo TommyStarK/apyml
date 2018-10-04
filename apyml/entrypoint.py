@@ -1,3 +1,6 @@
+"""The program main function.
+"""
+
 from apyml import __version__ as apymlVersion, ExitStatus, ColorStatus
 from apyml.apyml import APYML
 from apyml.internal import info, fatal
@@ -36,6 +39,7 @@ def main() -> int:
         raise
     except Exception as e:
         fatal(f'Core initialization [{ColorStatus.FAILURE}]')
+        fatal(e)
         exit_status = ExitStatus.ERROR
         raise
     else:

@@ -36,9 +36,13 @@ class APYML(object):
         info(f'Core initialization [{ColorStatus.SUCCESS}]')
 
     def _worker(self, job: dict):
-        directives = job['preprocessing_directives']
-        self._dataframe = run_preprocessing_directives(self._dataframe, directives)
-        info(f'Data preprocessing [{ColorStatus.SUCCESS}]')
+        try:
+            directives = job['preprocessing_directives']
+            self._dataframe = run_preprocessing_directives(self._dataframe, directives)
+            info(f'Data preprocessing [{ColorStatus.SUCCESS}]')
+        except Exception:
+            critical(f'Data preprocessing [{ColorStatus.FAILURE}]')
+            raise
 
         if self._mode == 'build':
             from apyml.core.build import run_build_directive
@@ -50,23 +54,25 @@ class APYML(object):
         self._tasks.put({'job': job, 'timer_preprocessing': None, 'timer_job': None})
     
     def run(self):
-        try:
-            tmp = dict(self._infos)
-            jobs = context.get_from_config(self._mode)[self._mode]
-            process_number = len(jobs)
-            path, typ, ext = tmp['path'], tmp['type'], tmp['extension']
-            
-            for k in ['path', 'type', 'extension']:
-                tmp.pop(k, None)
+        tmp = dict(self._infos)
+        jobs = context.get_from_config(self._mode)[self._mode]
+        process_number = len(jobs)
+        path, typ, ext = tmp['path'], tmp['type'], tmp['extension']
+        
+        for k in ['path', 'type', 'extension']:
+            tmp.pop(k, None)
 
+        try:
             self._dataframe = create_dataframe_from_src(path, typ, ext, storage_infos={**tmp})
             info(f'Dataframe creation [{ColorStatus.SUCCESS}]')
-
-            pool = Pool(processes=process_number)
-            pool.starmap(self._worker, [(job,) for job in jobs])
-            pool.close()
         except Exception:
+            fatal(f'Dataframe creation [{ColorStatus.FAILURE}]')
             raise
+            return
+
+        pool = Pool(processes=process_number)
+        pool.starmap(self._worker, [(job,) for job in jobs])
+        pool.close()
     
     def report(self):
         info('Writing report to disk...')
