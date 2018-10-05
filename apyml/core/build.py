@@ -15,7 +15,7 @@ from apyml.internal.hash import merkle_root
 
 def run_build_directive(dataframe: pandas.DataFrame, job: dict):
     name = job['name']
-    func = job['directive']
+    func = job['build_directive']
     dest = f'{Context().get_store_path()}/{name}/{func}'
     
     try:

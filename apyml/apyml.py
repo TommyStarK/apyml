@@ -18,6 +18,7 @@ class APYML(object):
         self._infos = {}
         self._mode = 'predict' if not mode else mode
         self._preds = {}
+        self._report = report
         self._src = src
         self._tasks = tasks
 
@@ -86,7 +87,33 @@ class APYML(object):
         pool.close()
     
     def report(self):
-        info('Writing report to disk...')
+        if not self._report:
+            self._report = 'csv'
+        
+        if self._report not in ['csv', 'json']:
+            info(f'Report: `{self._report}` format not supported. Switching to `csv`.')
+            self._report = 'csv'
+
+        i = 1
         self._tasks.put(None)
         for item in iter(self._tasks.get, None):
-            print(item)
+            info('Job [{}] n°{} with id ({}) succeeded. Process took: {}, job took: {}.'.format(
+                item['job']['name'],
+                i,
+                item['id'],
+                item['timer_preprocessing'],
+                item['timer_job']
+            ))
+
+            preds = item['preds']
+            if preds is not None:
+                info(f'Writing predictions to disk. Selected format: {self._report}.')
+                getattr(preds, f'to_{self._report}')(
+                    'job_{}_model_{}_predictions.{}'.format(
+                        i,
+                        item['job']['name'],
+                        self._report
+                    )
+                )
+            
+            i += 1

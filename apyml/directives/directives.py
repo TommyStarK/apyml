@@ -42,10 +42,18 @@ def outliers(dataframe: pandas.DataFrame) -> pandas.DataFrame:
 
 
 @preprocess_directive
+def reindex(dataframe: pandas.DataFrame) -> pandas.DataFrame:
+    import numpy
+    info('Reindexing dataframe...')
+    dataframe = dataframe.reindex(numpy.random.RandomState(seed=42).permutation(dataframe.index))
+    return dataframe
+
+
+@preprocess_directive
 def remove_undesired_columns(dataframe: pandas.DataFrame) -> pandas.DataFrame:
     import numpy
     info('Removing undesired columns...')
-    dataframe = dataframe.drop(['first_trans_date', 'last_trans_date'], axis=1)
+    dataframe = dataframe.drop(['first_trans_date', 'last_trans_date', 'Unnamed: 0'], axis=1)
     return dataframe
 
 
@@ -66,16 +74,6 @@ def shuffling(dataframe: pandas.DataFrame) -> pandas.DataFrame:
 #
 # BUILD
 # 
-@build_directive
-def future_sales_basic(dataframe: pandas.DataFrame) -> object:
-    import xgboost as xgb
-    future_sales = dataframe['future_sales']
-    dataframe = dataframe.drop(['future_sales'], axis=1)
-    model = xgb.XGBRegressor(nthreads=-1, booster='gbtree', objective='reg:linear', random_state=42)
-    model.fit(dataframe, future_sales)
-    return model
-
-
 @build_directive
 def future_sales_by_cohort(dataframe: pandas.DataFrame) -> object:
     import numpy
@@ -102,13 +100,6 @@ def future_sales_by_cohort(dataframe: pandas.DataFrame) -> object:
 # 
 # PREDICT
 #
-@predict_directive
-def predict_future_sales(dataframe: pandas.DataFrame, models: list) -> object:
-    future_sales = dataframe['future_sales']
-    dataframe = dataframe.drop(['future_sales'], axis=1)
-    preds = models[0].predict(dataframe)
-    return (future_sales, preds)
-
 @predict_directive
 def predict_future_sales_by_cohort(dataframe: pandas.DataFrame, models: list) -> object:
     import numpy

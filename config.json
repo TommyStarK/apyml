@@ -16,9 +16,15 @@
     },
     "build": [
         {
-            "name": "test",
-            "description": "this is a description",
+            "name": "cltv_predictive_model_by_cohort",
+            "description": ":)",
             "preprocessing_directives": [
+                {
+                    "name": "remove_undesired_columns"
+                },
+                {
+                    "name": "reindex"
+                },
                 {
                     "name": "set_index"
                 },
@@ -32,26 +38,29 @@
                     "name": "shuffling"
                 }
             ],
-            "build_directive": "future_sales_basic"
+            "build_directive": "future_sales_by_cohort"
         }
     ],
     "predict": [
         {
-            "name": "test",
-            "description": "this is a description",
+            "name": "cltv_predictive_model_by_cohort",
+            "description": ":)",
             "preprocessing_directives": [
+                {
+                    "name": "remove_undesired_columns"
+                },
+                {
+                    "name": "reindex"
+                },
                 {
                     "name": "set_index"
                 },
                 {
                     "name": "label_encoding"
-                },
-                {
-                    "name": "shuffling"
                 }
             ],
-            "model_name": "future_sales_basic",
-            "predict_directive": "predict_future_sales"
+            "model_name": "future_sales_by_cohort",
+            "predict_directive": "predict_future_sales_by_cohort"
         }
     ]
 }
