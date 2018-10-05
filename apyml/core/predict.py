@@ -7,12 +7,16 @@ from apyml import ColorStatus
 from apyml.context import Context
 from apyml.internal import info, fatal
 
-def run_predict_directive(dataframe: pandas.DataFrame, job: dict):
-    context = Context()
+def run_predict_directive(dataframe: pandas.DataFrame, job: dict) -> pandas.DataFrame:
     build_name = job['name']
     model_name = job['model_name']
     predict_func = job['predict_directive']
-    path = f'{context.get_store_path()}/{build_name}/{model_name}'
+    path = f'{Context().get_store_path()}/{build_name}/{model_name}'
+
+    final = pandas.DataFrame(
+            index=[Context().get_from_config('dataset')['index']], 
+            columns=[Context().get_from_config('dataset')['target'], 'predictions']
+        )
 
     try:
         info(f'Running model(s)...')
@@ -26,25 +30,14 @@ def run_predict_directive(dataframe: pandas.DataFrame, job: dict):
             df['predictions'] = preds
             return df.copy()
 
-        final = pandas.DataFrame(
-            index=[context.get_from_config('dataset')['index']], 
-            columns=[context.get_from_config('dataset')['target'], 'predictions']
-        )
-        print("1111", final.head(20))
-
         if isinstance(ret, types.GeneratorType):
             for r in ret:
-                tmp = predictions_to_dataframe(r[0], r[1])
-                print("22222", tmp.head(20))
-                final.append(tmp, ignore_index=True)
-                print("33333", final.head(20))
+                final = pandas.concat([final, predictions_to_dataframe(r[0], r[1])])
         else:
-            tmp = predictions_to_dataframe(ret[0], ret[1])
-            print("22222", tmp.head(20))
-            final.append(tmp, ignore_index=True)
-            print("33333", final.head(20))
-
-        context.set(build_name, final.copy())
+            final = pandas.concat([final, predictions_to_dataframe(ret[0], ret[1])])
+    
     except Exception:
         fatal(f'Running model(s)... [{ColorStatus.FAILURE}]')
         raise
+
+    return final.copy()

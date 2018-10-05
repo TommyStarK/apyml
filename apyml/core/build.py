@@ -14,15 +14,14 @@ from apyml.internal.hash import merkle_root
 
 
 def run_build_directive(dataframe: pandas.DataFrame, job: dict):
-    context = Context()
     build_name = job['name']
     build_func = job['build_directive']
-    dest = f'{context.get_store_path()}/{build_name}/{build_func}'
+    dest = f'{Context().get_store_path()}/{build_name}/{build_func}'
     
     try:
         info(f'Building model {build_name}...')
         res = getattr(importlib.import_module('apyml.directives.directives'), build_func)(dataframe.copy())
-        dataframe_hash = context.get(os.getpid())
+        dataframe_hash = Context().get(os.getpid())
 
         if not os.path.exists(dest):
             os.makedirs(dest)

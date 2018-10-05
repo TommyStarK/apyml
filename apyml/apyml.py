@@ -1,7 +1,7 @@
 from multiprocessing import Manager
 from multiprocessing import Pool
 from multiprocessing import Queue
-from os.path import splitext
+import os
 import time
 
 from apyml import ColorStatus
@@ -10,7 +10,6 @@ from apyml.core.dataframe import create_dataframe_from_src
 from apyml.core.preprocessing import run_preprocessing_directives
 from apyml.internal import *
 
-context = Context()
 tasks = Manager().Queue()
 
 class APYML(object):
@@ -18,6 +17,7 @@ class APYML(object):
         self._dataframe = None
         self._infos = {}
         self._mode = 'predict' if not mode else mode
+        self._preds = {}
         self._src = src
         self._tasks = tasks
 
@@ -26,10 +26,10 @@ class APYML(object):
             from urllib.parse import urlparse
             infos = urlparse(self._src)
             self._infos['bucket'] = infos.netloc
-            name, ext = splitext(infos.path)
+            name, ext = os.path.splitext(infos.path)
             self._infos['type'] = 'S3'
         else:
-            name, ext = splitext(self._src)
+            name, ext = os.path.splitext(self._src)
             self._infos['type'] = 'File'
         self._infos['extension'] = ext
         self._infos['path'] = name + ext
@@ -37,6 +37,7 @@ class APYML(object):
         info(f'Core initialization [{ColorStatus.SUCCESS}]')
 
     def _worker(self, job: dict):
+        _id = os.getpid()
         job_duration = 0
         preprocess_duration = 0
         preprocess_start = time.time()
@@ -50,20 +51,22 @@ class APYML(object):
             run_build_directive(self._dataframe, job)
         else:
             from apyml.core.predict import run_predict_directive
-            run_predict_directive(self._dataframe, job)
+            self._preds[_id] = run_predict_directive(self._dataframe, job)
  
         now = time.time()
         self._tasks.put(
             {
+                'id': _id,
                 'job': job, 
                 'timer_preprocessing': f'{job_start-preprocess_start}s', 
-                'timer_job': f'{now-job_start}s'
+                'timer_job': f'{now-job_start}s',
+                'preds': None if _id not in self._preds else self._preds[_id]
             }
         )
     
     def run(self):
         tmp = dict(self._infos)
-        jobs = context.get_from_config(self._mode)[self._mode]
+        jobs = Context().get_from_config(self._mode)[self._mode]
         process_number = len(jobs)
         path, typ, ext = tmp['path'], tmp['type'], tmp['extension']
         
@@ -86,12 +89,4 @@ class APYML(object):
         info('Writing report to disk...')
         self._tasks.put(None)
         for item in iter(self._tasks.get, None):
-            job = item['job']
-            preprocess_time = item['timer_preprocessing']
-            job_time = item['timer_job']
-
-            print(job)
-            data = context.get(job['name'])
-            print(data)
-            if data:
-                print(data.head(30))
+            print(item)

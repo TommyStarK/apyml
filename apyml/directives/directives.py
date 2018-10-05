@@ -124,9 +124,7 @@ def predict_future_sales_by_cohort(dataframe: pandas.DataFrame, models: list) ->
     dfs.append(dataframe[dataframe['cohort'].isnull()].copy())
 
     for index, df in enumerate(dfs):
-        print(list(df['cohort'].unique()))
         future_sales = df['future_sales']
         df = df.drop(['future_sales'], axis=1)
         preds = models[index].predict(df)
-        print(len(future_sales), len(preds))
         yield (future_sales, preds)
