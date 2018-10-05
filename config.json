@@ -44,17 +44,14 @@
                     "name": "set_index"
                 },
                 {
-                    "name": "remove_undesired_columns"
-                },
-                {
                     "name": "label_encoding"
                 },
                 {
                     "name": "shuffling"
                 }
             ],
-            "model_name": "future_sales_by_cohort",
-            "predict_directive": "predict_future_sales_by_cohort"
+            "model_name": "future_sales_basic",
+            "predict_directive": "predict_future_sales"
         }
     ]
 }

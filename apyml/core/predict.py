@@ -8,10 +8,10 @@ from apyml.context import Context
 from apyml.internal import info, fatal
 
 def run_predict_directive(dataframe: pandas.DataFrame, job: dict) -> pandas.DataFrame:
-    build_name = job['name']
-    model_name = job['model_name']
-    predict_func = job['predict_directive']
-    path = f'{Context().get_store_path()}/{build_name}/{model_name}'
+    func = job['predict_directive']
+    model = job['model_name']
+    name = job['name']
+    path = f'{Context().get_store_path()}/{name}/{model}'
 
     final = pandas.DataFrame(
             index=[Context().get_from_config('dataset')['index']], 
@@ -20,10 +20,7 @@ def run_predict_directive(dataframe: pandas.DataFrame, job: dict) -> pandas.Data
 
     try:
         info(f'Running model(s)...')
-        ret = getattr(
-            importlib.import_module('apyml.directives.directives'), 
-            predict_func
-        )(dataframe, path)
+        ret = getattr(importlib.import_module('apyml.directives.directives'), func)(dataframe, path)
 
         def predictions_to_dataframe(true: pandas.Series, preds) -> pandas.DataFrame:
             df = true.to_frame()
